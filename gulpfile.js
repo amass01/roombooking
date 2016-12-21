@@ -9,30 +9,50 @@ const watch = require('gulp-watch');
 const del = require('del');
 const autoprefixer = require('gulp-autoprefixer');
 const rename = require('gulp-rename');
+const htmlmin = require('gulp-htmlmin');
+const ngTemplates = require('gulp-ng-templates');
 
 
 src = {
+  views: ['./src/views/**/*.html'],
   scss: ['./src/styles/**/*.*css'],
   css: ['./src/css/**/*.css'],
   cssMinified: ['./src/css/min/**/*.css'],
   js : [
     './src/app.js',
-    './js/**/*.module.js',
-    './js/**/*.config.js',
-    './js/**/*.service.js',
-    './js/**/*.factory.js',
-    './js/**/*.directive.js',
-    './js/**/*.controller.js',
-    './js/**/*.filter.js',
-    './js/**/*.component.js',
-    './js/**/*.animation.js',
+    './src/**/*.module.js',
+    './src/**/*.config.js',
+    './src/**/*.service.js',
+    './src/**/*.factory.js',
+    './src/**/*.directive.js',
+    './src/**/*.controller.js',
+    './src/**/*.filter.js',
+    './src/**/*.component.js',
+    './src/**/*.animation.js',
   ],
 };
+
+/*** ANGULAR TEMPLATES ***/
+gulp.task('ngTemplates', function () {
+  return gulp.src(src.views)
+    .pipe(htmlmin({collapseWhitespace: true, removeComments: true}))
+    .pipe(ngTemplates({
+      filename: 'templates.module.js',
+      module: 'roomsbooking.templates',
+      path: function (path, base) {
+        return path.replace(base, ['views/']);
+      },
+      header: '(function(angular){angular.module("<%= module %>"<%= standalone %>).run(["$templateCache", function($templateCache) {',
+      footer: '}]);}(angular));'
+    }))
+    .pipe(gulp.dest('./src/bundles'));
+});
 
 /*** PACK JS LIB ***/
 gulp.task('pack-lib', function () {
   return gulp.src([
     "./node_modules/angular/angular.min.js",
+    "./node_modules/angular-ui-router/release/angular-ui-router.min.js",
   ])
     .pipe(concat('lib.packed.min.js'))
     .pipe(gulp.dest('./deploy/js'))
@@ -93,13 +113,14 @@ gulp.task('clean', function (done) {
     './deploy/**',
     '!./deploy',
     './src/css',
+    './src/bundles',
   ]);
 });
 
 /*** DEPLOY ***/
 gulp.task('deploy', function (done) {
 
-  return sequence('clean', 'pack-lib', 'pack-scripts', 'sass', 'minify-css', 'pack-css', 'index-html', done);
+  return sequence('clean', 'ngTemplates', 'pack-lib', 'pack-scripts', 'sass', 'minify-css', 'pack-css', 'index-html', done);
 
 });
 
