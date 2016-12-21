@@ -4,6 +4,8 @@
     .controller('roomsController', roomsController);
 
   function roomsController(){
+    var roomsCtrl = this;
 
+    roomsCtrl.name = 'Amir';
   }
 }(angular));
