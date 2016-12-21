@@ -127,4 +127,5 @@ gulp.task('deploy', function (done) {
 gulp.task('watch', function() {
   gulp.watch(src.js, ['deploy']);
   gulp.watch(src.scss, ['deploy']);
+  gulp.watch(src.views, ['deploy']);
 });
