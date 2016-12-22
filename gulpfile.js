@@ -17,6 +17,9 @@ src = {
   views: ['./src/views/**/*.html'],
   scss: ['./src/styles/**/*.*css'],
   css: ['./src/css/**/*.css'],
+  libCss: [
+    './node_modules/angular-ui-bootstrap/dist/ui-bootstrap-csp.css',
+  ],
   cssMinified: ['./src/css/min/**/*.css'],
   js : [
     './src/app.js',
@@ -53,6 +56,8 @@ gulp.task('pack-lib', function () {
   return gulp.src([
     "./node_modules/angular/angular.min.js",
     "./node_modules/angular-ui-router/release/angular-ui-router.min.js",
+    "./node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js",
+    './node_modules/angular-route/angular-route.min.js',
   ])
     .pipe(concat('lib.packed.min.js'))
     .pipe(gulp.dest('./deploy/js'))
@@ -106,6 +111,13 @@ gulp.task('pack-css', function () {
     .pipe(gulp.dest('./deploy/css'));
 });
 
+/*** PACK LIB CSS ***/
+gulp.task('pack-lib-css', function () {
+  return gulp.src(src.libCss)
+    .pipe(concat('lib.min.css'))
+    .pipe(gulp.dest('./deploy/css'));
+});
+
 
 /*** CLEAN ***/
 gulp.task('clean', function (done) {
@@ -120,7 +132,7 @@ gulp.task('clean', function (done) {
 /*** DEPLOY ***/
 gulp.task('deploy', function (done) {
 
-  return sequence('clean', 'ngTemplates', 'pack-lib', 'pack-scripts', 'sass', 'minify-css', 'pack-css', 'index-html', done);
+  return sequence('clean', 'ngTemplates', 'pack-lib', 'pack-scripts', 'sass', 'minify-css', 'pack-css', 'pack-lib-css', 'index-html', done);
 
 });
 
